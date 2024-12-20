@@ -4,29 +4,35 @@ pragma solidity ^0.8.8;
 contract Crowdfunding {
 
     // !! voting phase should start after goal is reached.
+    // !! contributors should add some extra amount to their funds in case funds are returned. 
+    // This return process costs some gas too.
+
 
     address public projectCreator;
     uint256 public goal;
     uint256 public raisedAmount;
     uint256 public deadline;
-    mapping(address => uint256) public contributions;
-    mapping(address => bool) public hasVoted;
-    address[] public contributors;
-    uint256 public approvalVotes;
-    string purpose;
+    string public purpose;
+    string public request;
 
-    // Events
-    event FundReceived(address contributor, uint256 amount);
-    event SpendingRequestCreated(string details);
-    event SpendingApproved(uint256 approvalVotes);
-    event SpendingDenied();
+    uint256 public approvalVotes;
+    mapping(address => uint256) public contributorsToAmount;
+    mapping(address => bool) public contributorsToVote;
+    address[] public contributors;
+    
+    bool public isRequestReady;
+    bool public approved; 
+    bool public isFundingEnded;
+    bool public hasVotingStarted;
 
     error NotProjectCreator();
 
-    constructor(address _creator, uint256 _goal, uint256 _deadline) {
+    constructor(address _creator, uint256 _goal, uint256 _deadline, string memory _purpose) {
         projectCreator = _creator;
         goal = _goal;
         deadline = _deadline;
+        purpose = _purpose;
+        isFundingEnded = false;
     }
 
     modifier onlyProjectCreator {
@@ -34,49 +40,83 @@ contract Crowdfunding {
         _;
     }
 
-    function donate() public payable {
+    modifier onlyWhenPayable() {
+        require(!isFundingEnded || !hasVotingStarted, "Contract is no longer payable");
+        _;
+    }
+
+    function donate() onlyWhenPayable public payable {
         require(msg.sender != projectCreator, "Creator cannot donate");
         require(block.timestamp < deadline, "Deadline has passed");
         require(msg.value > 0, "Donation must be greater than 0");
 
-        contributions[msg.sender] += msg.value;
+        contributorsToAmount[msg.sender] += msg.value;
         raisedAmount += msg.value;
-        contributors.push(msg.sender);
 
-        emit FundReceived(msg.sender, msg.value);
+        if(raisedAmount >= goal){
+            hasVotingStarted = true;
+        }
+
+        // TO-DO
+
+        bool isContributor = false;
+        for (uint256 i = 0; i < contributors.length; i++) 
+        {
+            if(contributors[i] == msg.sender){
+                isContributor = true;
+                break;   
+            }
+        }
+        if(!isContributor){
+            contributors.push(msg.sender);
+        }
+
     }
 
     // Function for project creator to create a spending request
     function createSpendingRequest(string memory _details) onlyProjectCreator public {
-        emit SpendingRequestCreated(_details);
+        require(!isRequestReady, "Waiting for the voting results of the previous request");
+        request = _details;
+        isRequestReady = true;
     }
 
     // Function for contributors to vote on spending
     function voteOnSpending(bool _approve) public {
-        require(contributions[msg.sender] > 0, "You must contribute to vote");
-        require(!hasVoted[msg.sender], "You have already voted");
+        require(hasVotingStarted && isRequestReady, "Voting hasn't started yet or there is no spending request yet");
+        require(contributorsToAmount[msg.sender] > 0, "You must contribute to vote");
+        require(!contributorsToVote[msg.sender], "You have already voted");
 
-        hasVoted[msg.sender] = true;
+        contributorsToVote[msg.sender] = true;
         if (_approve) {
-            approvalVotes += contributions[msg.sender];
+            approvalVotes++;
         }
 
         // be careful here, floating-point numbers
         if (approvalVotes > contributors.length / 2) {
-            emit SpendingApproved(approvalVotes);
+            approved = true;
+            sendFundsToCreator();
         }
-        // SpendingDenied() should be emmited when timestamp reached and there aren't enough approvals, 
-        //or all backers don't approve 
-    }
 
-    function withdrawFunds() onlyProjectCreator public payable {
         // TO-DO
 
-        // only can return if creator has the approval 
+    }
+
+    function sendFundsToCreator() internal {
+        // TO-DO
+        isFundingEnded = true;
+        (bool sent, ) = payable(projectCreator).call{value: raisedAmount}("");
+        require(sent, "Failed to send Ether");
+        raisedAmount = 0;
     }
 
     function returnFunds() internal {
         // TO-DO
+        for (uint256 i = 0; i < contributors.length; i++) 
+        {
+            (bool sent, ) = payable(contributors[i]).call{value: contributorsToAmount[contributors[i]]}("");
+            require(sent, "Failed to send Ether");
+            // what do we do after funds are returned? contributors, contributorsToAmount...
+        }
     }
 
     // TO-DO
