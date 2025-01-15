@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crowdfunding UI</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.0.0/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <div class="container">
+    <h1>Crowdfunding DApp</h1>
+
+    <div>
+      <h3>Create New Contract</h3>
+      <form id="createContractForm">
+        <label for="goal">Goal (ETH):</label>
+        <input type="number" id="goalInput" placeholder="Enter goal amount" required>
+        <br>
+        <label for="deadline">Deadline (Unix timestamp):</label>
+        <input type="number" id="deadlineInput" placeholder="Enter deadline timestamp" required>
+        <br>
+        <label for="purpose">Purpose:</label>
+        <input type="text" id="purposeInput" placeholder="Enter purpose" required>
+        <br>
+        <label for="votingDuration">Voting Duration (seconds):</label>
+        <input type="number" id="votingDurationInput" placeholder="Enter voting duration" required>
+        <br>
+        <button type="submit">Create Contract</button>
+      </form>
+    </div>
+
+    <div>
+      <h3>Interact with a Contract</h3>
+      <label for="contractAddressInput">Enter Contract Address:</label>
+      <input type="text" id="contractAddressInput" placeholder="0x...">
+      <button id="setContractButton">Set Contract</button>
+    </div>
+
+    <div>
+      <h3>Contract Information</h3>
+      <p><strong>Project Creator:</strong> <span id="projectCreator"></span></p>
+      <p><strong>Goal:</strong> <span id="goal"></span></p>
+      <p><strong>Raised Amount:</strong> <span id="raisedAmount"></span></p>
+      <p><strong>Deadline:</strong> <span id="deadline"></span></p>
+      <p><strong>Purpose:</strong> <span id="purpose"></span></p>
+      <p><strong>Request:</strong> <span id="request"></span></p>
+      <p><strong>Approval Votes:</strong> <span id="approvalVotes"></span></p>
+      <p><strong>Contributors:</strong> <span id="contributors"></span></p>
+      <p><strong>Is Request Ready:</strong> <span id="isRequestReady"></span></p>
+      <p><strong>Approved:</strong> <span id="approved"></span></p>
+      <p><strong>Funding Ended:</strong> <span id="isFundingEnded"></span></p>
+      <p><strong>Has Voting Started:</strong> <span id="hasVotingStarted"></span></p>
+    </div>
+
+    <div>
+      <button id="donateButton">Donate</button>
+      <button id="createRequestButton">Create Spending Request</button>
+      <button id="voteButton">Vote on Spending</button>
+    </div>
+
+    <div>
+      <h3>Fetch Contract Data</h3>
+      <button id="fetchCreatorButton">Fetch Project Creator</button>
+      <button id="fetchGoalButton">Fetch Goal</button>
+      <button id="fetchRaisedAmountButton">Fetch Raised Amount</button>
+      <button id="fetchDeadlineButton">Fetch Deadline</button>
+      <button id="fetchPurposeButton">Fetch Purpose</button>
+      <button id="fetchRequestButton">Fetch Request</button>
+      <button id="fetchApprovalVotesButton">Fetch Approval Votes</button>
+      <button id="fetchContributorsButton">Fetch Contributors</button>
+      <button id="fetchIsRequestReadyButton">Fetch Is Request Ready</button>
+      <button id="fetchApprovedButton">Fetch Approved</button>
+      <button id="fetchIsFundingEndedButton">Fetch Is Funding Ended</button>
+      <button id="fetchHasVotingStartedButton">Fetch Has Voting Started</button>
+    </div>
+
+    <div>
+      <h3>Status</h3>
+      <p id="statusMessage"></p>
+    </div>
+
+    <div>
+      <h3>Your Account:</h3>
+      <p id="account"></p>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

@@ -24,16 +24,18 @@ contract Crowdfunding {
     uint256 public startVotingTime; // Start time of the voting
     uint256 public maxVotingTime = 2;   // Max voting time
 
-    error NotProjectCreator();
-    error DirectTransferNotAllowed();
+    //error NotProjectCreator();
+    //error DirectTransferNotAllowed();
 
-    event DonationReceived(address contributor, uint256 amount);
+   /*  event DonationReceived(address contributor, uint256 amount);
     event RequestCreated(string details);
     event VotingResult(bool approved);
     event FundsTransferredToCreator(address recipient, uint256 amount);
-    event FundsReturned(address contributor, uint256 amount);
+    event FundsReturned(address contributor, uint256 amount); */
 
     constructor(uint256 _goal, uint256 _deadline, string memory _purpose, uint256 _votingDuration) {
+        //require(_deadline > block.timestamp + 1 days, "Deadline must be at least 24 hours from now.");
+        //require(_votingDuration >= 120, "Voting duration must be at least 2 minutes.");
         projectCreator = msg.sender;
         goal = _goal;
         deadline = _deadline;
@@ -43,7 +45,7 @@ contract Crowdfunding {
     }
 
     modifier onlyProjectCreator {
-        if (msg.sender != projectCreator) revert NotProjectCreator();
+        require(msg.sender == projectCreator, "NotProjectCreator");
         _;
     }
 
@@ -64,7 +66,6 @@ contract Crowdfunding {
         contributorsToAmount[msg.sender] += msg.value;
         raisedAmount += msg.value;
 
-        emit DonationReceived(msg.sender, msg.value);
 
         if (raisedAmount >= goal) {
             hasVotingStarted = true;
@@ -77,7 +78,7 @@ contract Crowdfunding {
         request = _details;
         isRequestReady = true;
 
-        emit RequestCreated(_details);
+        
     }
 
     function voteOnSpending(bool _approve) public {
@@ -95,7 +96,7 @@ contract Crowdfunding {
         if (approvalVotes > contributors.length / 2) {
             approved = true;
             sendFundsToCreator();
-            emit VotingResult(true);
+            
         } else if (block.timestamp >= startVotingTime + votingDuration) {
             // If voting period has passed without approval, reset for new voting
             if(maxVotingTime == 0){
@@ -103,7 +104,7 @@ contract Crowdfunding {
             } else {
                 maxVotingTime--;
                 resetVoting();
-                emit VotingResult(false);
+                
             }
         }
 
@@ -116,7 +117,6 @@ contract Crowdfunding {
         (bool sent, ) = payable(projectCreator).call{value: raisedAmount}("");
         require(sent, "Failed to send Ether");
 
-        emit FundsTransferredToCreator(projectCreator, raisedAmount);
 
         raisedAmount = 0;
     }
@@ -139,7 +139,7 @@ contract Crowdfunding {
                 contributorsToAmount[contributor] = 0;
                 (bool sent, ) = payable(contributor).call{value: amount}("");
                 require(sent, "Failed to send Ether");
-                emit FundsReturned(contributor, amount);
+                
             }
         }
 
@@ -150,10 +150,10 @@ contract Crowdfunding {
     }
 
     receive() external payable {
-        revert DirectTransferNotAllowed();
+        revert("DirectTransferNotAllowed");
     }
 
-    fallback() external payable {
-        revert DirectTransferNotAllowed();
+     fallback() external payable {
+        revert("DirectTransferNotAllowed");
     }
 }
