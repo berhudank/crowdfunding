@@ -11,6 +11,7 @@ contract Crowdfunding {
     string public request;
 
     uint256 public approvalVotes;
+    uint256 public disapprovalVotes;
     mapping(address => uint256) public contributorsToAmount;
     mapping(address => bool) public contributorsToVote;
     address[] public contributors;
@@ -90,6 +91,8 @@ contract Crowdfunding {
         contributorsToVote[msg.sender] = true;
         if (_approve) {
             approvalVotes++;
+        }else{
+            disapprovalVotes++;
         }
 
         // Check if majority approves or voting time has passed
@@ -97,7 +100,10 @@ contract Crowdfunding {
             approved = true;
             sendFundsToCreator();
             
-        } else if (block.timestamp >= startVotingTime + votingDuration) {
+        } else if(approvalVotes + disapprovalVotes == contributors.length){
+            returnFunds();
+        }
+        else if (block.timestamp >= startVotingTime + votingDuration) {
             // If voting period has passed without approval, reset for new voting
             if(maxVotingTime == 0){
                 returnFunds();
@@ -127,6 +133,7 @@ contract Crowdfunding {
         for (uint256 i = 0; i < contributors.length; i++) {
             contributorsToVote[contributors[i]] = false;
         }
+        startVotingTime = block.timestamp;
     }
 
     function returnFunds() internal {

@@ -18,7 +18,7 @@
         <input type="number" id="goalInput" placeholder="Enter goal amount" required>
         <br>
         <label for="deadline">Deadline (Unix timestamp):</label>
-        <input type="number" id="deadlineInput" placeholder="Enter deadline timestamp" required>
+        <input type="date" id="deadlineInput">
         <br>
         <label for="purpose">Purpose:</label>
         <input type="text" id="purposeInput" placeholder="Enter purpose" required>
@@ -37,7 +37,7 @@
       <button id="setContractButton">Set Contract</button>
     </div>
 
-    <div>
+    <div id="contractInfoDiv">
       <h3>Contract Information</h3>
       <p><strong>Project Creator:</strong> <span id="projectCreator"></span></p>
       <p><strong>Goal:</strong> <span id="goal"></span></p>
@@ -46,7 +46,8 @@
       <p><strong>Purpose:</strong> <span id="purpose"></span></p>
       <p><strong>Request:</strong> <span id="request"></span></p>
       <p><strong>Approval Votes:</strong> <span id="approvalVotes"></span></p>
-      <p><strong>Contributors:</strong> <span id="contributors"></span></p>
+      <p><strong>Disapproval Votes:</strong> <span id="disapprovalVotes"></span></p>
+      <p><strong>Contributor:</strong> <span id="contributor"></span></p>
       <p><strong>Is Request Ready:</strong> <span id="isRequestReady"></span></p>
       <p><strong>Approved:</strong> <span id="approved"></span></p>
       <p><strong>Funding Ended:</strong> <span id="isFundingEnded"></span></p>
@@ -68,7 +69,12 @@
       <button id="fetchPurposeButton">Fetch Purpose</button>
       <button id="fetchRequestButton">Fetch Request</button>
       <button id="fetchApprovalVotesButton">Fetch Approval Votes</button>
-      <button id="fetchContributorsButton">Fetch Contributors</button>
+      <button id="fetchDisapprovalVotesButton">Fetch Disapproval Votes</button>
+      <div>
+        <h3>Fetch Contributor</h3>
+        <input type="number" id="contributorIndex" placeholder="Enter index" min="0">
+        <button id="fetchContributorButton">Fetch Contributor</button>
+      </div>
       <button id="fetchIsRequestReadyButton">Fetch Is Request Ready</button>
       <button id="fetchApprovedButton">Fetch Approved</button>
       <button id="fetchIsFundingEndedButton">Fetch Is Funding Ended</button>
